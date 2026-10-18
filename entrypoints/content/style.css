@@ -1,0 +1,79 @@
+/* Primer CSS variables, so GitHub's light, dark and high-contrast themes apply. */
+
+.ym-textarea {
+  display: block;
+  width: 100%;
+  min-height: 4.5em;
+  max-height: 60vh;
+  resize: vertical;
+  font-family: var(--fontStack-monospace, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-y: auto;
+}
+
+.ym-counter {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--fgColor-muted, #59636e);
+}
+.ym-counter--over {
+  color: var(--fgColor-danger, #d1242f);
+}
+
+.ym-combobox-anchor {
+  position: relative;
+  height: 0;
+}
+
+.ym-listbox {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--overlay-bgColor, var(--bgColor-default, #fff));
+  border: 1px solid var(--borderColor-default, #d1d9e0);
+  border-radius: 6px;
+  box-shadow: var(--shadow-floating-small, 0 1px 3px rgb(0 0 0 / 0.12));
+}
+
+.ym-option {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--fgColor-default, #1f2328);
+}
+.ym-option:hover,
+.ym-option--active {
+  background: var(--bgColor-neutral-muted, rgb(129 139 152 / 0.12));
+}
+.ym-option[aria-selected='true'] {
+  font-weight: 600;
+}
+.ym-option-value,
+.ym-option-more {
+  font-size: 12px;
+  color: var(--fgColor-muted, #59636e);
+}
+.ym-option-more {
+  padding: 4px 8px;
+}
+
+.ym-note {
+  margin: 4px 0 8px;
+  font-size: 12px;
+  color: var(--fgColor-muted, #59636e);
+}
+.ym-note--warn {
+  color: var(--fgColor-attention, #9a6700);
+}
