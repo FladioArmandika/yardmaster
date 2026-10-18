@@ -1,14 +1,15 @@
 <!doctype html>
-<!-- Hand-written to match the field structure GitHub rendered on 2026-10-18. Replace with a real snapshot. -->
+<!-- Hand-written to match GitHub's 2026-10-18 panel: a modal dialog, inputs inside overflow-clipping wrappers. Replace with a real snapshot. -->
 <html><head><title>Actions</title></head><body>
-<div role="dialog" aria-label="Run workflow">
+<dialog id="panel" aria-label="Run workflow">
   <form id="workflow_dispatch_form" action="/o/r/actions/manual" method="post" aria-label="Run workflow">
     <input type="hidden" name="workflow" value=".github/workflows/spike.yml">
     <input type="hidden" name="branch" value="main">
     <fieldset><input type="text" id="_r_h_" aria-label="Filter branches"></fieldset>
-    <div><label for="_r_m_">[multiline] Release notes</label><input type="text" id="_r_m_" name="inputs[notes]"><span>notes</span></div>
-    <div><label for="_r_n_">[options: branches] Branch</label><input type="text" id="_r_n_" name="inputs[target]" value="main"><span>target</span></div>
+    <div><label for="_r_m_">[multiline] Release notes</label><span style="display:flex;overflow:hidden"><input type="text" id="_r_m_" name="inputs[notes]"></span><span>notes</span></div>
+    <div><label for="_r_n_">[options: branches] Branch</label><span style="display:flex;overflow:hidden;height:32px"><input type="text" id="_r_n_" name="inputs[target]" value="main"></span><span>target</span></div>
     <button type="submit">Run workflow</button>
   </form>
-</div>
+</dialog>
+<script>document.getElementById("panel").showModal()</script>
 </body></html>

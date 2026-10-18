@@ -27,6 +27,16 @@ test('upgrades the dispatch form and posts newlines', async ({ context }) => {
   const target = tab.locator('#_r_n_');
   await expect(target).toHaveAttribute('role', 'combobox');
   await target.fill('rel');
+  // The list must not be clipped by GitHub's input wrapper: the option itself has to be hit-testable.
+  const option = tab.getByRole('option', { name: 'release/1.0' });
+  await expect
+    .poll(() =>
+      option.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) === el && r.height > 0;
+      }),
+    )
+    .toBe(true);
   await tab.getByRole('option', { name: 'release/1.0' }).click();
   await expect(target).toHaveValue('release/1.0');
 

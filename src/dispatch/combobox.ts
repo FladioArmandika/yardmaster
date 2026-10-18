@@ -27,6 +27,10 @@ export function makeCombobox(input: HTMLInputElement, options: Option[], opts: C
   list.className = 'ym-listbox';
   list.setAttribute('role', 'listbox');
   list.hidden = true;
+  // GitHub's input wrapper clips overflow, so the list opens in the top layer as a popover.
+  // It stays inside the form's DOM, so GitHub's modal dialog keeps it interactive.
+  const usePopover = typeof list.showPopover === 'function';
+  if (usePopover) list.setAttribute('popover', 'manual');
   anchor.append(list);
   input.after(anchor);
 
@@ -95,12 +99,28 @@ export function makeCombobox(input: HTMLInputElement, options: Option[], opts: C
     else input.removeAttribute('aria-activedescendant');
   };
 
+  const place = () => {
+    if (!usePopover) return;
+    const r = input.getBoundingClientRect();
+    Object.assign(list.style, {
+      position: 'fixed',
+      inset: 'auto',
+      margin: '0',
+      top: `${r.bottom + 4}px`,
+      left: `${r.left}px`,
+      width: `${r.width}px`,
+      maxHeight: `${Math.max(120, Math.min(260, window.innerHeight - r.bottom - 12))}px`,
+    });
+  };
   const open = () => {
     render();
     list.hidden = false;
+    if (usePopover && !list.matches(':popover-open')) list.showPopover();
+    place();
     input.setAttribute('aria-expanded', 'true');
   };
   const close = () => {
+    if (usePopover && list.matches(':popover-open')) list.hidePopover();
     list.hidden = true;
     active = -1;
     input.setAttribute('aria-expanded', 'false');
@@ -151,6 +171,9 @@ export function makeCombobox(input: HTMLInputElement, options: Option[], opts: C
     { signal },
   );
   input.addEventListener('blur', () => setTimeout(close, 120), { signal });
+  window.addEventListener('resize', place, { signal });
+  // Capture scrolls of any container, such as GitHub's side panel.
+  document.addEventListener('scroll', () => !list.hidden && place(), { signal, capture: true, passive: true });
   // mousedown, not click: it fires before the input blurs.
   list.addEventListener(
     'mousedown',
