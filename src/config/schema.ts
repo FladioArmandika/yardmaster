@@ -14,6 +14,8 @@ export interface InputConfig {
   rows?: number;
   options?: OptionsSource;
   allowCustom?: boolean;
+  /** false: don't remember or suggest this input's past values. */
+  recent?: boolean;
 }
 
 export interface WorkflowConfig {
@@ -29,6 +31,8 @@ export interface FoldersConfig {
 export interface RepoConfig {
   workflows: Record<string, WorkflowConfig>;
   folders: FoldersConfig;
+  /** false: don't remember past values for any input in this repo. */
+  recent: boolean;
 }
 
 /** Problems found while reading config. Shown inline, never thrown. */
@@ -39,5 +43,5 @@ export const CONFIG_PATH = '.github/dispatch-ui.yml';
 export const DEFAULT_FOLDERS: FoldersConfig = { by: 'prefix', separator: '--', map: {} };
 
 export function emptyConfig(): RepoConfig {
-  return { workflows: {}, folders: { ...DEFAULT_FOLDERS, map: {} } };
+  return { workflows: {}, folders: { ...DEFAULT_FOLDERS, map: {} }, recent: true };
 }

@@ -45,6 +45,16 @@ export function queryAll<E extends Element = HTMLElement>(key: SelectorKey, root
   return [];
 }
 
+export function matches(key: SelectorKey, el: Element): boolean {
+  return selectors[key].some((s) => {
+    try {
+      return el.matches(s);
+    } catch {
+      return false;
+    }
+  });
+}
+
 /** All selectors for a key joined, for CSS-based observers. */
 export function selectorList(key: SelectorKey): string {
   return selectors[key].join(', ');

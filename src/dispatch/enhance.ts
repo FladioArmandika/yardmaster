@@ -1,11 +1,12 @@
 import { parseMarkers } from '../config/markers';
-import { resolveInputConfig } from '../config/merge';
+import { recentAllowed, resolveInputConfig } from '../config/merge';
 import { parseRepoConfig } from '../config/parse';
 import { CONFIG_PATH, type InputConfig, type RepoConfig } from '../config/schema';
 import { fetchRefs, fetchRepoFile, type Fetcher } from '../github/fetch';
 import { inputIdFromName, refForForm, workflowFileName, workflowPathForForm, type Repo } from '../github/page';
 import { queryAll } from '../github/selectors';
 import { resolveOptions, type ResolveContext } from '../options/resolve';
+import { isSensitive, recentKey, type RecentStore } from '../recent/history';
 import { makeCombobox } from './combobox';
 import { makeMultiline } from './multiline';
 import { errorMessage, showNote } from './note';
@@ -13,6 +14,8 @@ import { errorMessage, showNote } from './note';
 export interface EnhanceDeps {
   repo: Repo;
   fetcher?: Fetcher;
+  /** Past submitted values, offered as suggestions on plain text inputs. */
+  recent?: RecentStore;
 }
 
 const MARKER_TEXT = /\[(?:multiline|options)(?:\s*:\s*[^\]]*)?\]/gi;
@@ -28,7 +31,7 @@ const warnedForms = new WeakMap<HTMLFormElement, Set<string>>();
  * input element is enhanced on its own, reading config at the branch selected now.
  * Anything that fails is undone and GitHub's own field stays.
  */
-export async function enhanceDispatchInput(input: HTMLInputElement, { repo, fetcher }: EnhanceDeps): Promise<void> {
+export async function enhanceDispatchInput(input: HTMLInputElement, { repo, fetcher, recent }: EnhanceDeps): Promise<void> {
   if (input.dataset.ymState) return;
   input.dataset.ymState = 'pending';
 
@@ -46,9 +49,13 @@ export async function enhanceDispatchInput(input: HTMLInputElement, { repo, fetc
   const markers = parseMarkers(group.textContent ?? '');
   warnOnce(form, [...warnings, ...markers.warnings.map((w) => `${id}: ${w}`)]);
 
-  const config = resolveInputConfig(repoConfig, workflowFileName(workflowPath), id, markers.config);
-  if (!config || !input.isConnected) {
+  const workflowFile = workflowFileName(workflowPath);
+  const config = resolveInputConfig(repoConfig, workflowFile, id, markers.config);
+  if (!recentAllowed(repoConfig, workflowFile, id) || isSensitive(id)) input.dataset.ymRecent = 'off';
+  if (!input.isConnected) return;
+  if (!config) {
     input.dataset.ymState = 'skipped';
+    if (recent && input.dataset.ymRecent !== 'off') await suggestRecent(input, recent, recentKey(repo, workflowFile), id);
     return;
   }
 
@@ -72,6 +79,23 @@ export async function enhanceDispatchInput(input: HTMLInputElement, { repo, fetc
 /** Enhances every string input in a form. */
 export async function enhanceDispatchForm(form: HTMLFormElement, deps: EnhanceDeps): Promise<void> {
   await Promise.all(queryAll<HTMLInputElement>('dispatchTextInputs', form).map((input) => enhanceDispatchInput(input, deps)));
+}
+
+/** Offers past values of a plain text input. Silent on failure: GitHub's field just stays as it is. */
+async function suggestRecent(input: HTMLInputElement, store: RecentStore, key: string, id: string): Promise<void> {
+  try {
+    const values = (await store.get(key))[id] ?? [];
+    if (!values.length || !input.isConnected) return;
+    makeCombobox(
+      input,
+      values.map((value) => ({ label: value, value })),
+      { allowCustom: true, heading: 'Recent', emptyText: null },
+    );
+    input.classList.add('ym-combobox--suggest');
+    input.dataset.ymState = 'recent';
+  } catch {
+    // Storage unavailable; nothing to suggest.
+  }
 }
 
 async function loadRepoConfig(

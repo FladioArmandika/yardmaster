@@ -2,6 +2,10 @@ import type { Option } from '../config/schema';
 
 export interface ComboboxOptions {
   allowCustom?: boolean;
+  /** A label shown above the options, such as "Recent". */
+  heading?: string;
+  /** Shown when nothing matches. null keeps the list closed instead. */
+  emptyText?: string | null;
 }
 
 const VISIBLE_LIMIT = 100;
@@ -68,6 +72,7 @@ export function makeCombobox(input: HTMLInputElement, options: Option[], opts: C
       ...shown.map((o, i) => {
         const li = document.createElement('li');
         li.id = `${listId}-${i}`;
+        li.dataset.index = String(i);
         li.setAttribute('role', 'option');
         li.setAttribute('aria-selected', String(o.value === input.value));
         li.className = 'ym-option';
@@ -90,13 +95,23 @@ export function makeCombobox(input: HTMLInputElement, options: Option[], opts: C
       list.append(more);
     }
     if (!matches.length) {
+      const text = opts.emptyText !== undefined ? opts.emptyText : opts.allowCustom ? 'No match, your text will be used as is' : 'No match';
+      if (text === null) return false;
       const none = document.createElement('li');
       none.className = 'ym-option-more';
-      none.textContent = opts.allowCustom ? 'No match, your text will be used as is' : 'No match';
+      none.textContent = text;
       list.append(none);
+    }
+    if (opts.heading) {
+      const heading = document.createElement('li');
+      heading.className = 'ym-option-heading';
+      heading.setAttribute('role', 'presentation');
+      heading.textContent = opts.heading;
+      list.prepend(heading);
     }
     if (active >= 0) input.setAttribute('aria-activedescendant', `${listId}-${active}`);
     else input.removeAttribute('aria-activedescendant');
+    return true;
   };
 
   const place = () => {
@@ -113,7 +128,7 @@ export function makeCombobox(input: HTMLInputElement, options: Option[], opts: C
     });
   };
   const open = () => {
-    render();
+    if (!render()) return close();
     list.hidden = false;
     if (usePopover && !list.matches(':popover-open')) list.showPopover();
     place();
@@ -142,7 +157,7 @@ export function makeCombobox(input: HTMLInputElement, options: Option[], opts: C
       active = -1;
       validate();
       if (list.hidden) open();
-      else render();
+      else if (!render()) close();
     },
     { signal },
   );
@@ -181,7 +196,7 @@ export function makeCombobox(input: HTMLInputElement, options: Option[], opts: C
       const li = (e.target as Element).closest('li[role="option"]');
       if (!li) return;
       e.preventDefault();
-      const o = shown[[...list.children].indexOf(li)];
+      const o = shown[Number((li as HTMLElement).dataset.index)];
       if (o) choose(o);
     },
     { signal },

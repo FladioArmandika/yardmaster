@@ -2,7 +2,7 @@ import { parse as parseYaml } from 'yaml';
 import { parseOptionsShorthand, toOption } from './options-source';
 import { emptyConfig, type InputConfig, type Option, type RepoConfig, type Warnings } from './schema';
 
-const INPUT_KEYS = new Set(['multiline', 'rows', 'options', 'match', 'allowCustom']);
+const INPUT_KEYS = new Set(['multiline', 'rows', 'options', 'match', 'allowCustom', 'recent']);
 
 /** Reads `.github/dispatch-ui.yml`. Never throws: problems come back as warnings. */
 export function parseRepoConfig(text: string): { config: RepoConfig; warnings: Warnings } {
@@ -46,9 +46,13 @@ export function parseRepoConfig(text: string): { config: RepoConfig; warnings: W
   }
 
   if (doc.folders !== undefined) parseFolders(doc.folders, config, warnings);
+  if (doc.recent !== undefined) {
+    if (typeof doc.recent === 'boolean') config.recent = doc.recent;
+    else warnings.push('`recent` should be true or false');
+  }
 
   for (const key of Object.keys(doc)) {
-    if (!['version', 'workflows', 'folders'].includes(key)) warnings.push(`ignored unknown key \`${key}\``);
+    if (!['version', 'workflows', 'folders', 'recent'].includes(key)) warnings.push(`ignored unknown key \`${key}\``);
   }
   return { config, warnings };
 }
@@ -70,6 +74,10 @@ function parseInput(raw: unknown, where: string, warnings: Warnings): InputConfi
   if (raw.rows !== undefined) {
     if (Number.isInteger(raw.rows) && (raw.rows as number) > 0 && (raw.rows as number) <= 50) out.rows = raw.rows as number;
     else warnings.push(`${where}.rows should be a whole number from 1 to 50`);
+  }
+  if (raw.recent !== undefined) {
+    if (typeof raw.recent === 'boolean') out.recent = raw.recent;
+    else warnings.push(`${where}.recent should be true or false`);
   }
   if (raw.allowCustom !== undefined) {
     if (typeof raw.allowCustom === 'boolean') out.allowCustom = raw.allowCustom;

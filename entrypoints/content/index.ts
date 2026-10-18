@@ -1,6 +1,8 @@
 import { enhanceDispatchInput } from '@/src/dispatch/enhance';
 import { isActionsPath, repoFromPath } from '@/src/github/page';
-import { selectorList } from '@/src/github/selectors';
+import { matches, selectorList } from '@/src/github/selectors';
+import { toHistory, type RecentStore } from '@/src/recent/history';
+import { recordSubmission } from '@/src/recent/record';
 import { enhanceSidebar, type CollapseStore } from '@/src/sidebar/enhance';
 import { observe } from '@/src/util/observe';
 import './style.css';
@@ -19,9 +21,22 @@ export default defineContentScript({
       (input) => {
         if (!isActionsPath(location.pathname)) return;
         const repo = repoFromPath(location.pathname);
-        if (repo) void enhanceDispatchInput(input, { repo });
+        if (repo) void enhanceDispatchInput(input, { repo, recent });
       },
       ctx.signal,
+    );
+
+    // Capture phase, so the values are read before GitHub's form handles the submit.
+    document.addEventListener(
+      'submit',
+      (e) => {
+        const form = e.target;
+        if (!(form instanceof HTMLFormElement) || !isActionsPath(location.pathname)) return;
+        if (!matches('dispatchForm', form)) return;
+        const repo = repoFromPath(location.pathname);
+        if (repo) void recordSubmission(form, repo, recent).catch(() => {});
+      },
+      { capture: true, signal: ctx.signal },
     );
 
     observe<HTMLUListElement>(
@@ -44,5 +59,15 @@ const store: CollapseStore = {
   },
   async set(key, folders) {
     await browser.storage.local.set({ [key]: folders });
+  },
+};
+
+/** Past values of plain text inputs, per repository and workflow, in the browser's extension storage. */
+const recent: RecentStore = {
+  async get(key) {
+    return toHistory((await browser.storage.local.get(key))[key]);
+  },
+  async set(key, history) {
+    await browser.storage.local.set({ [key]: history });
   },
 };

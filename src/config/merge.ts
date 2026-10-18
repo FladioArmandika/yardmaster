@@ -16,6 +16,13 @@ export function resolveInputConfig(
   return picked && hasAny(picked) ? picked : null;
 }
 
+/** Whether past values of this input may be remembered and suggested. */
+export function recentAllowed(repo: RepoConfig | null, workflowFile: string, inputId: string): boolean {
+  if (repo && !repo.recent) return false;
+  const entry = repo?.workflows[workflowFile]?.inputs[inputId] ?? repo?.workflows['*']?.inputs[inputId];
+  return entry?.recent !== false;
+}
+
 function hasAny(c: InputConfig): boolean {
   return Boolean(c.multiline || c.options);
 }

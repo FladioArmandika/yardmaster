@@ -6,6 +6,7 @@ Yardmaster is a browser extension that upgrades GitHub Actions' "Run workflow" f
 
 - **Multiline inputs.** A `string` input becomes an auto-growing textarea, and newlines reach your workflow intact ([community#12882](https://github.com/orgs/community/discussions/12882)).
 - **Computed dropdowns.** Options come from the repo's branches or tags, a JSON file in the repo, or a static list. Long lists are searchable ([community#11795](https://github.com/orgs/community/discussions/11795), [#12029](https://github.com/orgs/community/discussions/12029)).
+- **Recent values.** Any plain text input suggests what you submitted before for that workflow, with no config. Stored only in your browser.
 - **Workflow folders** in the Actions sidebar, grouped by filename prefix or a mapping, collapsible ([community#11831](https://github.com/orgs/community/discussions/11831)).
 
 Your workflows keep declaring plain `string` inputs. Yardmaster only changes the form controls in your browser, so teammates without the extension still get GitHub's normal text field. If anything goes wrong, Yardmaster leaves GitHub's field untouched and shows a short note.
@@ -64,6 +65,17 @@ workflows:
 Order of precedence: the workflow's entry in `dispatch-ui.yml`, then description markers, then the `"*"` defaults.
 
 For environments, use GitHub's built-in `type: environment` input, which already renders a dropdown.
+
+### Recent values
+
+Every single-line text input without other config remembers the last 10 values you submitted for that workflow and offers them when you click the field. You can still type anything.
+
+Values are kept only in your browser's extension storage. Yardmaster never stores:
+
+- inputs whose name looks like a credential (`token`, `secret`, `password`, `key`, `auth` and similar),
+- multiline values, or values over 200 characters.
+
+To turn it off for one input, set `recent: false` on it in `dispatch-ui.yml`. To turn it off for the whole repo, add `recent: false` at the top level.
 
 ### Sidebar folders
 
