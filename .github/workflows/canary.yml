@@ -1,0 +1,26 @@
+name: Canary
+# Loads real github.com pages daily and fails when GitHub's markup no longer matches
+# src/github/selectors.ts. GitHub emails a failed scheduled run to whoever last changed the schedule.
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --project live
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: canary-snapshots
+          path: test-results/

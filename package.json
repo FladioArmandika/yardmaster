@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --project fixtures",
+    "test:live": "playwright test --project live",
     "postinstall": "wxt prepare"
   },
   "devDependencies": {
