@@ -2,19 +2,20 @@
  * Every GitHub DOM selector Yardmaster relies on lives in this file.
  * Each entry is a list tried in order (current markup first, older markup after),
  * so a GitHub UI change is usually a one-line fix here.
- * The scheduled canary and the fixture tests both exercise these.
+ * The fixture tests exercise these against saved GitHub markup.
  */
 export const selectors = {
-  /** The "Run workflow" dropdown. Its form is lazily loaded from /actions/manual?workflow=… */
-  dispatchDetails: ['details[data-deferred-details-content-url*="/actions/manual?workflow="]'],
+  /**
+   * The "Run workflow" form. Since 2026 it renders with React in a side-panel dialog
+   * (verified 2026-10-18); before that it sat in a <details> dropdown. Both post to /actions/manual.
+   */
   dispatchForm: ['form[action$="/actions/manual"]', 'form:has([name^="inputs["])'],
   /** The workflow file is named either on the form or on the details element's fragment URL. */
   dispatchWorkflowField: ['input[name="workflow"]'],
-  dispatchRefField: ['input[name="ref"]', 'input[name="branch"]'],
+  /** Hidden field holding the "Use workflow from" branch. */
+  dispatchRefField: ['input[name="branch"]', 'input[name="ref"]'],
   /** String inputs render as plain text fields named inputs[<id>]. */
   dispatchTextInputs: ['input[type="text"][name^="inputs["]', 'input:not([type])[name^="inputs["]'],
-  /** Wrapper around one input with its label and description, used to place notes. */
-  dispatchInputGroup: ['.form-group', 'dd', 'div'],
 
   /** Workflow links in the Actions sidebar (Primer React ActionList). */
   sidebarLink: [

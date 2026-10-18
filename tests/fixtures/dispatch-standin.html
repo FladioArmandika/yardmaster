@@ -1,14 +1,14 @@
 <!doctype html>
-<!-- Hand-written stand-in for GitHub's "Run workflow" panel. Replace with a real snapshot. -->
+<!-- Hand-written to match the field structure GitHub rendered on 2026-10-18. Replace with a real snapshot. -->
 <html><head><title>Actions</title></head><body>
-<details data-deferred-details-content-url="/o/r/actions/manual?workflow=.github%2Fworkflows%2Fspike.yml" open>
-  <summary>Run workflow</summary>
-  <form action="/o/r/actions/manual" method="post">
+<div role="dialog" aria-label="Run workflow">
+  <form id="workflow_dispatch_form" action="/o/r/actions/manual" method="post" aria-label="Run workflow">
     <input type="hidden" name="workflow" value=".github/workflows/spike.yml">
-    <input type="hidden" name="ref" value="main">
-    <div class="form-group"><label for="notes">[multiline] Release notes</label><input type="text" id="notes" name="inputs[notes]"></div>
-    <div class="form-group"><label for="target">[options: branches] Branch</label><input type="text" id="target" name="inputs[target]" value="main"></div>
+    <input type="hidden" name="branch" value="main">
+    <fieldset><input type="text" id="_r_h_" aria-label="Filter branches"></fieldset>
+    <div><label for="_r_m_">[multiline] Release notes</label><input type="text" id="_r_m_" name="inputs[notes]"><span>notes</span></div>
+    <div><label for="_r_n_">[options: branches] Branch</label><input type="text" id="_r_n_" name="inputs[target]" value="main"><span>target</span></div>
     <button type="submit">Run workflow</button>
   </form>
-</details>
+</div>
 </body></html>

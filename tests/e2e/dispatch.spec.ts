@@ -24,7 +24,7 @@ test('upgrades the dispatch form and posts newlines', async ({ context }) => {
   await expect(tab.getByText('Release notes')).toBeVisible();
   await notes.fill('line 1\nline 2');
 
-  const target = tab.locator('#target');
+  const target = tab.locator('#_r_n_');
   await expect(target).toHaveAttribute('role', 'combobox');
   await target.fill('rel');
   await tab.getByRole('option', { name: 'release/1.0' }).click();
