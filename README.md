@@ -6,7 +6,7 @@ Yardmaster is a browser extension that upgrades GitHub Actions' "Run workflow" f
 
 - **Multiline inputs.** A `string` input becomes an auto-growing textarea, and newlines reach your workflow intact ([community#12882](https://github.com/orgs/community/discussions/12882)).
 - **Computed dropdowns.** Options come from the repo's branches or tags, a JSON file in the repo, or a static list. Long lists are searchable ([community#11795](https://github.com/orgs/community/discussions/11795), [#12029](https://github.com/orgs/community/discussions/12029)).
-- **Workflow folders** in the Actions sidebar. Coming in the next release ([community#11831](https://github.com/orgs/community/discussions/11831)).
+- **Workflow folders** in the Actions sidebar, grouped by filename prefix or a mapping, collapsible ([community#11831](https://github.com/orgs/community/discussions/11831)).
 
 Your workflows keep declaring plain `string` inputs. Yardmaster only changes the form controls in your browser, so teammates without the extension still get GitHub's normal text field. If anything goes wrong, Yardmaster leaves GitHub's field untouched and shows a short note.
 
@@ -64,6 +64,24 @@ workflows:
 Order of precedence: the workflow's entry in `dispatch-ui.yml`, then description markers, then the `"*"` defaults.
 
 For environments, use GitHub's built-in `type: environment` input, which already renders a dropdown.
+
+### Sidebar folders
+
+By default, workflows that share a filename prefix before `--` are grouped: `deploy--prod.yml` and `deploy--staging.yml` show under a "deploy" folder. A prefix needs at least two workflows to become a folder. Click a folder to collapse it; Yardmaster remembers that per repository in your browser. A collapsed folder still shows the workflow you're viewing.
+
+To group differently, add `folders` to `.github/dispatch-ui.yml` on the default branch:
+
+```yaml
+folders:
+  by: map              # prefix (default), map, or off
+  map:
+    Deploy: ["deploy-*.yml", "rollback.yml"]
+    Checks: ["ci-*.yml"]
+# or keep prefixes with another separator:
+# folders: { by: prefix, separator: "_" }
+```
+
+This only changes how the sidebar looks. GitHub still requires workflow files to sit directly in `.github/workflows` ([community#18055](https://github.com/orgs/community/discussions/18055)).
 
 ### Good to know
 

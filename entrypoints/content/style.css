@@ -86,3 +86,50 @@ input.ym-combobox {
   background-position: right 8px center !important;
   cursor: pointer;
 }
+
+/* Sidebar folders, styled like Primer's NavList items. */
+.ym-folder {
+  list-style: none;
+}
+.ym-folder-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  margin: 2px 0 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fgColor-muted, #59636e);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.ym-folder-toggle:hover {
+  background: var(--control-transparent-bgColor-hover, rgb(129 139 152 / 0.15));
+  color: var(--fgColor-default, #1f2328);
+}
+.ym-folder-toggle:focus-visible {
+  outline: 2px solid var(--focus-outlineColor, #0969da);
+  outline-offset: -2px;
+}
+.ym-folder-chevron {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  transition: transform 0.12s;
+}
+.ym-folder-toggle[aria-expanded='false'] .ym-folder-chevron {
+  transform: rotate(-90deg);
+}
+.ym-folder-name {
+  flex: 1;
+}
+.ym-folder-count {
+  font-weight: 400;
+}

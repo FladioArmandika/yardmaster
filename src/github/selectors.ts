@@ -17,6 +17,8 @@ export const selectors = {
   /** String inputs render as plain text fields named inputs[<id>]. */
   dispatchTextInputs: ['input[type="text"][name^="inputs["]', 'input:not([type])[name^="inputs["]'],
 
+  /** The sidebar's "Workflows" group list (Primer React NavList). React owns it; Yardmaster never moves its items. */
+  sidebarGroupList: ['ul[class^="prc-ActionList-GroupList"]', 'ul[class*="ActionList-GroupList"]'],
   /** Workflow links in the Actions sidebar (Primer React ActionList). */
   sidebarLink: [
     'a[class^="prc-ActionList-ActionListContent"][href*="/actions/workflows/"]',

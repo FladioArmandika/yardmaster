@@ -6,6 +6,8 @@ export default defineConfig({
     name: 'Yardmaster',
     description:
       'Multiline inputs, computed dropdowns and folders for GitHub Actions. github.com only, no tokens, no telemetry.',
+    // Only to remember which sidebar folders you collapsed.
+    permissions: ['storage'],
     ...(browser === 'firefox' && {
       browser_specific_settings: {
         gecko: {
